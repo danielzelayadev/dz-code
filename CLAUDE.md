@@ -79,6 +79,12 @@ src/
   update the README and any other affected doc (e.g. `package.json`
   scripts/description/version, `.env.example`) in the same change — not as
   a follow-up.
+- **Keep design docs in sync too.** When a change alters *why* the code is
+  shaped the way it is (a new persistence strategy, a new architectural
+  pattern, a changed tradeoff), update [ARCHITECTURE.md](ARCHITECTURE.md)
+  in the same change. When a file's single responsibility changes, or a
+  new file is added, update or add its one-line header comment at the top
+  of the file.
 - Type-check before considering a change done: `npx tsc --noEmit` and
   `npx tsc -p tsconfig.test.json --noEmit`.
 - Run the test suite and make sure it's green: `npm test`. A change is not
