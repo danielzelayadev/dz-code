@@ -15,7 +15,13 @@ export function loadSessionHistory(): MessageParam[] {
   }
 }
 
-/** Saves the full conversation history so the next run can pick up where this one left off. */
-export function saveSessionHistory(messages: MessageParam[]): void {
+/** Appends new messages to the saved history and persists the result. */
+export function addToSessionHistory(newMessages: MessageParam[]): void {
+  const history = loadSessionHistory();
+  saveSessionHistory([...history, ...newMessages]);
+}
+
+/** Overwrites the saved history file with the given messages. */
+function saveSessionHistory(messages: MessageParam[]): void {
   fs.writeFileSync(SESSION_FILE, JSON.stringify(messages, null, 2), "utf-8");
 }

@@ -20,7 +20,11 @@ const SYSTEM_PROMPT =
   "answering; only use write_file when the user has actually asked for a " +
   "file to be created or changed. Use update_notes to record facts worth " +
   "remembering long-term about this codebase — architecture, conventions, " +
-  "past mistakes — not for routine narration of what you just did.";
+  "past mistakes — not for routine narration of what you just did. Past " +
+  "conversation history is not automatically included in your context — if " +
+  "you suspect something relevant was already discussed or decided in an " +
+  "earlier session, use check_history to search for it rather than " +
+  "assuming you have no memory of it.";
 
 export interface AgentResult {
   answer: string;
@@ -30,11 +34,10 @@ export interface AgentResult {
 /** Drives the agentic loop: ask the model, run any tools it calls, repeat until it answers in text. */
 export async function runAgent(
   client: Anthropic,
-  history: MessageParam[],
   question: string,
   systemPrompt: string,
 ): Promise<AgentResult> {
-  const messages: MessageParam[] = [...history, { role: "user", content: question }];
+  const messages: MessageParam[] = [{ role: "user", content: question }];
 
   while (true) {
     const response = await askModel(client, messages, systemPrompt);

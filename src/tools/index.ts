@@ -4,6 +4,7 @@ import { LIST_DIRECTORY_TOOL, listDirectory } from "./list-directory";
 import { SEARCH_FILES_TOOL, searchFiles } from "./search-files";
 import { WRITE_FILE_TOOL, writeFile } from "./write-file";
 import { UPDATE_NOTES_TOOL, updateNotes } from "./update-notes";
+import { CHECK_HISTORY_TOOL, checkHistory } from "./check-history";
 
 export interface ToolDefinition {
   tool: Tool;
@@ -32,6 +33,10 @@ export const TOOLS: Record<string, ToolDefinition> = {
   update_notes: {
     tool: UPDATE_NOTES_TOOL,
     handler: (input) => updateNotes(input.note as string),
+  },
+  check_history: {
+    tool: CHECK_HISTORY_TOOL,
+    handler: (input) => checkHistory(input.query as string),
   },
 };
 
