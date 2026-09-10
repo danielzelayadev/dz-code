@@ -1,15 +1,21 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { requireApiKey, requireQuestion } from "./cli";
-import { runAgent } from "./agent";
+import { runAgent, buildSystemPrompt } from "./agent";
+import { loadSessionHistory, saveSessionHistory } from "./session";
+import { loadProjectNotes } from "./notes";
 
 async function main() {
   const apiKey = requireApiKey();
   const question = requireQuestion();
 
   const client = new Anthropic({ apiKey });
-  const answer = await runAgent(client, question);
+  const history = loadSessionHistory();
+  const systemPrompt = buildSystemPrompt(loadProjectNotes());
+
+  const { answer, messages } = await runAgent(client, history, question, systemPrompt);
 
   console.log(answer);
+  saveSessionHistory(messages);
 }
 
 main().catch((err) => {

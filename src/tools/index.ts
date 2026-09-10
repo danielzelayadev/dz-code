@@ -3,6 +3,7 @@ import { READ_FILE_TOOL, readFile } from "./read-file";
 import { LIST_DIRECTORY_TOOL, listDirectory } from "./list-directory";
 import { SEARCH_FILES_TOOL, searchFiles } from "./search-files";
 import { WRITE_FILE_TOOL, writeFile } from "./write-file";
+import { UPDATE_NOTES_TOOL, updateNotes } from "./update-notes";
 
 export interface ToolDefinition {
   tool: Tool;
@@ -27,6 +28,10 @@ export const TOOLS: Record<string, ToolDefinition> = {
   write_file: {
     tool: WRITE_FILE_TOOL,
     handler: (input) => writeFile(input.path as string, input.content as string),
+  },
+  update_notes: {
+    tool: UPDATE_NOTES_TOOL,
+    handler: (input) => updateNotes(input.note as string),
   },
 };
 

@@ -18,19 +18,31 @@ const SYSTEM_PROMPT =
   "Use write_file to create or overwrite a file with new content. Prefer " +
   "read_file, list_directory, or search_files to gather context before " +
   "answering; only use write_file when the user has actually asked for a " +
-  "file to be created or changed.";
+  "file to be created or changed. Use update_notes to record facts worth " +
+  "remembering long-term about this codebase — architecture, conventions, " +
+  "past mistakes — not for routine narration of what you just did.";
+
+export interface AgentResult {
+  answer: string;
+  messages: MessageParam[];
+}
 
 /** Drives the agentic loop: ask the model, run any tools it calls, repeat until it answers in text. */
-export async function runAgent(client: Anthropic, question: string): Promise<string> {
-  const messages: MessageParam[] = [{ role: "user", content: question }];
+export async function runAgent(
+  client: Anthropic,
+  history: MessageParam[],
+  question: string,
+  systemPrompt: string,
+): Promise<AgentResult> {
+  const messages: MessageParam[] = [...history, { role: "user", content: question }];
 
   while (true) {
-    const response = await askModel(client, messages);
+    const response = await askModel(client, messages, systemPrompt);
     messages.push({ role: "assistant", content: response.content });
 
     const toolCalls = response.content.filter(isToolUseBlock);
     if (toolCalls.length === 0) {
-      return extractText(response.content);
+      return { answer: extractText(response.content), messages };
     }
 
     const toolResults = toolCalls.map(runToolCall);
@@ -38,16 +50,22 @@ export async function runAgent(client: Anthropic, question: string): Promise<str
   }
 }
 
+/** Builds the system prompt, folding in the project notes file when one exists. */
+export function buildSystemPrompt(notes: string | null): string {
+  if (!notes) return SYSTEM_PROMPT;
+  return `${SYSTEM_PROMPT}\n\n## Project notes\n\n${notes}`;
+}
+
 /**
  * Sends the current conversation history to the model, along with the system
  * prompt and the list of available tools, and returns the model's response
  * (which may contain text and/or tool_use blocks for the agent loop to handle).
  */
-function askModel(client: Anthropic, messages: MessageParam[]) {
+function askModel(client: Anthropic, messages: MessageParam[], systemPrompt: string) {
   return client.messages.create({
     model: MODEL,
     max_tokens: 4096,
-    system: SYSTEM_PROMPT,
+    system: systemPrompt,
     tools: TOOL_LIST,
     messages,
   });

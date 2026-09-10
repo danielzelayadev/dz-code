@@ -1,7 +1,11 @@
 # dz-code-agent
 
-Minimal TypeScript CLI agent using the Anthropic SDK. One tool (`read_file`),
-one-shot invocation, no memory between runs.
+Minimal TypeScript CLI agent using the Anthropic SDK. Each `npm start`
+invocation is one turn in an ongoing conversation: history is saved to
+`.session.json` after every run and reloaded on the next. The agent also
+maintains `PROJECT_NOTES.md`, a curated file of long-term facts about this
+codebase that it updates itself via the `update_notes` tool and that's loaded
+into its system prompt on every run.
 
 ## Setup
 
