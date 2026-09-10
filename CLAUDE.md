@@ -74,6 +74,11 @@ src/
 
 ## Workflow
 
+- **Keep docs in sync with every feature.** When a change adds or changes
+  user-visible behavior (a new tool, CLI flag, command, or dependency),
+  update the README and any other affected doc (e.g. `package.json`
+  scripts/description/version, `.env.example`) in the same change — not as
+  a follow-up.
 - Type-check before considering a change done: `npx tsc --noEmit` and
   `npx tsc -p tsconfig.test.json --noEmit`.
 - Run the test suite and make sure it's green: `npm test`. A change is not
