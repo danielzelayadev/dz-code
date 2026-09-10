@@ -11,7 +11,15 @@ is very much still growing.
 
 - **Codebase exploration & edits** — `read_file`, `list_directory`, and
   `search_files` (regex grep) let the agent gather context before
-  answering; `write_file` creates or overwrites files when asked.
+  answering; `write_file` creates or overwrites files, and `edit_file`
+  replaces one exact, unique snippet of text in an existing file.
+- **Shell access** — `run_bash` executes a shell command and returns its
+  stdout, stderr, and exit code.
+- **Confirmation for risky actions** — `run_bash` always asks first;
+  `write_file`/`edit_file` ask only when the target file isn't one git
+  can recover (gitignored, or outside a git repo). When a prompt fires,
+  the CLI prints the exact action and waits for you to type `y` in the
+  terminal before proceeding.
 - **Long-term project notes** — the agent maintains `PROJECT_NOTES.md`
   (capped at 4000 characters) via the `update_notes` tool, which rewrites
   the whole file each time — pruning stale entries and folding in new
@@ -88,6 +96,8 @@ src/
   index.ts          entry point — wires everything together
   cli.ts            reads/validates input from argv and env
   agent.ts          the agentic loop: call the model, dispatch tool calls
+  confirm.ts        asks the terminal user to approve a risky action
+  git.ts            checks whether git would let you recover a file
   session.ts        .session.json persistence
   notes.ts          PROJECT_NOTES.md persistence
   tools/            one file per tool — schema + handler together

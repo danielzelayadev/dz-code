@@ -1,6 +1,8 @@
 /** Tool: creates or overwrites a file with new content. */
 import fs from "fs";
 import type { Tool } from "@anthropic-ai/sdk/resources/messages";
+import { isGitRecoverable } from "../git";
+import type { ToolConfirmation } from "./tool-definition";
 
 /** Tool schema handed to the model. */
 export const WRITE_FILE_TOOL: Tool = {
@@ -30,3 +32,9 @@ export function writeFile(path: string, content: string): string {
   fs.writeFileSync(path, content, "utf-8");
   return `Wrote ${content.length} characters to ${path}.`;
 }
+
+/** Requires confirmation unless git would let the user recover the file's prior contents. */
+export const writeFileConfirmation: ToolConfirmation = {
+  isRequired: (input) => !isGitRecoverable(input.path as string),
+  describe: (input) => `Write to ${input.path}:\n\n${input.content}`,
+};

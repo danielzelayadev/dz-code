@@ -157,4 +157,48 @@ describe("runAgent", () => {
     expect(toolResult[0].content).toContain("Error running read_file:");
     expect(toolResult[0].content).toContain("ENOENT");
   });
+
+  it("never asks for confirmation before running a tool that doesn't require it", async () => {
+    fs.writeFileSync("hello.txt", "hi there", "utf-8");
+    const client = createFakeClient(
+      toolUseResponse("read_file", { path: "hello.txt" }, "call_1"),
+      textResponse("done"),
+    );
+    const confirm = vi.fn();
+
+    await runAgent(client, "read hello.txt", "system prompt", confirm);
+
+    expect(confirm).not.toHaveBeenCalled();
+  });
+
+  it("asks for confirmation before running run_bash, and runs it when approved", async () => {
+    const client = createFakeClient(
+      toolUseResponse("run_bash", { command: "echo hi" }, "call_1"),
+      textResponse("done"),
+    );
+    const confirm = vi.fn().mockResolvedValue(true);
+
+    const result = await runAgent(client, "run echo hi", "system prompt", confirm);
+
+    expect(confirm).toHaveBeenCalledWith(expect.stringContaining("echo hi"));
+    const toolResult = result.messages[2].content as Array<{ content: string }>;
+    expect(toolResult[0].content).toContain("hi");
+  });
+
+  it("skips execution and reports the decline when the user rejects confirmation", async () => {
+    const client = createFakeClient(
+      toolUseResponse("run_bash", { command: "echo hi" }, "call_1"),
+      textResponse("done"),
+    );
+    const confirm = vi.fn().mockResolvedValue(false);
+
+    const result = await runAgent(client, "run echo hi", "system prompt", confirm);
+
+    const toolResult = result.messages[2].content as Array<{
+      is_error?: boolean;
+      content: string;
+    }>;
+    expect(toolResult[0].is_error).toBeFalsy();
+    expect(toolResult[0].content).toMatch(/declined/i);
+  });
 });

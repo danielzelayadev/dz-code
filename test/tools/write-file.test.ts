@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import fs from "fs";
-import { writeFile } from "../../src/tools/write-file";
+import { execSync } from "child_process";
+import { writeFile, writeFileConfirmation } from "../../src/tools/write-file";
 import { useTempCwd } from "../helpers/fs-fixture";
 
 describe("writeFile", () => {
@@ -23,5 +24,27 @@ describe("writeFile", () => {
 
   it("throws when the parent directory doesn't exist", () => {
     expect(() => writeFile("missing-dir/file.txt", "content")).toThrow(/ENOENT/);
+  });
+});
+
+describe("writeFileConfirmation", () => {
+  useTempCwd();
+
+  it("describes the path and content", () => {
+    const message = writeFileConfirmation.describe({ path: "file.txt", content: "hello" });
+
+    expect(message).toContain("file.txt");
+    expect(message).toContain("hello");
+  });
+
+  it("requires confirmation when the directory isn't a git repo", () => {
+    expect(writeFileConfirmation.isRequired({ path: "file.txt" })).toBe(true);
+  });
+
+  it("skips confirmation for a file git would track", () => {
+    execSync("git init -q");
+    fs.writeFileSync("file.txt", "content", "utf-8");
+
+    expect(writeFileConfirmation.isRequired({ path: "file.txt" })).toBe(false);
   });
 });

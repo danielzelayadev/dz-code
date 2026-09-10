@@ -21,9 +21,12 @@ seeing its own output mid-run (more on that below).
    definitions to the model.
 2. If the response contains no `tool_use` blocks, it's a final answer —
    return it.
-3. Otherwise, run every tool call via the [tool registry](#tool-registry-pattern),
-   turn each outcome into a `tool_result` block, and append both the
-   model's message and the tool results to the conversation.
+3. Otherwise, run every tool call **in order** via the [tool
+   registry](#tool-registry-pattern) — sequentially, not in parallel, so
+   that any [confirmation prompts](#confirmation-gate) they trigger are
+   asked one at a time instead of interleaving on the terminal — turn
+   each outcome into a `tool_result` block, and append both the model's
+   message and the tool results to the conversation.
 4. Go back to step 1.
 
 The system prompt (including project notes) is built once, before the loop
@@ -43,10 +46,40 @@ cross-reference elsewhere.
 
 [`src/tools/index.ts`](src/tools/index.ts) is the only place that knows
 about *all* the tools: it imports each one and wires it into `TOOLS`, a
-`name → { tool, handler }` map that `agent.ts` dispatches against, and
-derives `TOOL_LIST` (just the schemas) to hand to the API. Adding a new
-tool means adding one file under `src/tools/` and one entry in that map —
-`agent.ts` itself never changes.
+`name → { tool, handler, confirmation? }` map that `agent.ts` dispatches
+against (see [confirmation gate](#confirmation-gate) for that optional
+third field), and derives `TOOL_LIST` (just the schemas) to hand to the
+API. Adding a new tool means adding one file under `src/tools/` and one
+entry in that map — `agent.ts` itself never changes.
+
+## Confirmation gate
+
+`run_bash` can do real damage, and `write_file`/`edit_file` can destroy
+work that isn't recoverable elsewhere — so some tool calls pause and ask
+the terminal user to approve them before they run. This is the app's
+first interactive, stdin-reading behavior, which is why tool dispatch in
+the loop above had to become sequential-async instead of firing every
+call at once: two confirmation prompts printing over each other would be
+unusable.
+
+A `ToolDefinition` ([src/tools/tool-definition.ts](src/tools/tool-definition.ts))
+may carry an optional `confirmation: { isRequired, describe }`. Before
+`agent.ts` invokes a tool's handler, it checks `isRequired(input)`; if
+true, it prints `describe(input)` — the exact command, or the file path
+plus old/new content — and awaits the user's answer via
+[`confirmAction`](src/confirm.ts) (a thin `readline` wrapper, injected
+into `runAgent` as a `confirm` parameter the same way the Anthropic
+client is, so tests supply a fake instead of touching the real TTY). A
+decline returns a normal (non-`is_error`) `tool_result` telling the
+model the action was skipped, so it can propose something else instead
+of treating it as a bug to retry.
+
+`run_bash`'s `isRequired` is always `true`. `write_file`/`edit_file`'s
+`isRequired` is `!isGitRecoverable(path)` ([src/git.ts](src/git.ts)),
+which shells out to `git check-ignore` — a file git already tracks (or
+would track) can be recovered with `git diff`/`checkout`, so touching it
+doesn't need a prompt; a gitignored file, or any file outside a git repo
+at all, can't be recovered that way, so it does.
 
 ## Two persistence strategies, deliberately different
 
@@ -81,6 +114,12 @@ Tests never touch the real Anthropic API or the real filesystem:
 - [`test/helpers/fs-fixture.ts`](test/helpers/fs-fixture.ts) creates and
   `chdir`s into a throwaway temp directory, so `session.ts`, `notes.ts`,
   and the tools never read or write files in the actual repo.
+- The terminal itself is a boundary too: `runAgent` takes `confirm` as a
+  parameter the same way it takes the Anthropic client, so tests pass a
+  `vi.fn()` instead of blocking on real stdin, and
+  [`confirmAction`](src/confirm.ts) takes its input/output streams as
+  parameters so its own test can feed it a fake stream instead of the
+  real TTY.
 
 See the **Testing** section in [CLAUDE.md](CLAUDE.md) for the full TDD
 workflow these fixtures support.

@@ -11,6 +11,7 @@ import type {
   ToolUseBlock,
 } from "@anthropic-ai/sdk/resources/messages";
 import { TOOLS, TOOL_LIST } from "./tools";
+import { confirmAction, type ConfirmFn } from "./confirm";
 
 const MODEL = "claude-sonnet-5";
 
@@ -31,7 +32,15 @@ const SYSTEM_PROMPT =
   "conversation history is not automatically included in your context — if " +
   "you suspect something relevant was already discussed or decided in an " +
   "earlier session, use check_history to search for it rather than " +
-  "assuming you have no memory of it.";
+  "assuming you have no memory of it. Use edit_file to replace one exact " +
+  "snippet of text in an existing file — prefer it over write_file when " +
+  "only part of a file needs to change; it fails if old_string isn't found " +
+  "exactly once, so make old_string specific enough to be unique. Use " +
+  "run_bash to run a shell command (tests, builds, anything the other " +
+  "tools can't do). Some actions pause for the user to type 'y' in the " +
+  "terminal before they run; if a tool result says the user declined, " +
+  "don't just retry the same action — ask them how they'd like to proceed " +
+  "or suggest an alternative.";
 
 export interface AgentResult {
   answer: string;
@@ -43,6 +52,7 @@ export async function runAgent(
   client: Anthropic,
   question: string,
   systemPrompt: string,
+  confirm: ConfirmFn = confirmAction,
 ): Promise<AgentResult> {
   const messages: MessageParam[] = [{ role: "user", content: question }];
 
@@ -55,9 +65,24 @@ export async function runAgent(
       return { answer: extractText(response.content), messages };
     }
 
-    const toolResults = toolCalls.map(runToolCall);
+    const toolResults = await runToolCalls(toolCalls, confirm);
     messages.push({ role: "user", content: toolResults });
   }
+}
+
+/**
+ * Runs each tool call in order (not in parallel) so that any confirmation
+ * prompts they trigger appear one at a time instead of interleaving.
+ */
+async function runToolCalls(
+  toolCalls: ToolUseBlock[],
+  confirm: ConfirmFn,
+): Promise<ToolResultBlockParam[]> {
+  const results: ToolResultBlockParam[] = [];
+  for (const toolCall of toolCalls) {
+    results.push(await runToolCall(toolCall, confirm));
+  }
+  return results;
 }
 
 /** Builds the system prompt, folding in the project notes file when one exists. */
@@ -93,7 +118,7 @@ function extractText(content: ContentBlock[]): string {
 }
 
 /** Runs a single tool the model asked for and turns the outcome into a tool_result block. */
-function runToolCall(toolCall: ToolUseBlock): ToolResultBlockParam {
+async function runToolCall(toolCall: ToolUseBlock, confirm: ConfirmFn): Promise<ToolResultBlockParam> {
   const { name, id } = toolCall;
   const input = toolCall.input as Record<string, unknown>;
   logToolCall(name, input);
@@ -106,6 +131,13 @@ function runToolCall(toolCall: ToolUseBlock): ToolResultBlockParam {
   const missing = missingRequiredArgs(entry.tool, input);
   if (missing.length > 0) {
     return logAndReturnError(id, name, `Missing required argument(s): ${missing.join(", ")}`);
+  }
+
+  if (entry.confirmation?.isRequired(input)) {
+    const approved = await confirm(entry.confirmation.describe(input));
+    if (!approved) {
+      return logAndReturnRejection(id, name);
+    }
   }
 
   try {
@@ -124,6 +156,12 @@ function logAndReturnError(toolUseId: string, name: string, message: string): To
   return toolError(toolUseId, message);
 }
 
+/** Logs a user's decline and turns it into a non-error tool_result block. */
+function logAndReturnRejection(toolUseId: string, name: string): ToolResultBlockParam {
+  logToolRejection(name);
+  return toolRejected(toolUseId);
+}
+
 function logToolCall(name: string, input: Record<string, unknown>): void {
   console.log(`→ ${name}(${JSON.stringify(input)})`);
 }
@@ -134,6 +172,10 @@ function logToolSuccess(name: string): void {
 
 function logToolError(name: string, message: string): void {
   console.error(`✗ ${name}: ${message}`);
+}
+
+function logToolRejection(name: string): void {
+  console.log(`⊘ ${name} (declined by user)`);
 }
 
 function missingRequiredArgs(tool: Tool, input: Record<string, unknown>): string[] {
@@ -147,4 +189,15 @@ function toolSuccess(toolUseId: string, content: string): ToolResultBlockParam {
 
 function toolError(toolUseId: string, content: string): ToolResultBlockParam {
   return { type: "tool_result", tool_use_id: toolUseId, content, is_error: true };
+}
+
+/** Not an error: the action just didn't happen, so the model should adapt rather than retry it as-is. */
+function toolRejected(toolUseId: string): ToolResultBlockParam {
+  return {
+    type: "tool_result",
+    tool_use_id: toolUseId,
+    content:
+      "The user declined this action, so it was not executed. Don't retry it " +
+      "unchanged — ask the user how they'd like to proceed, or propose an alternative.",
+  };
 }
