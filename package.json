@@ -2,7 +2,8 @@
   "name": "dz-code-agent",
   "version": "1.0.0",
   "private": true,
-  "description": "Minimal TypeScript CLI agent using the Anthropic SDK, with a single read_file tool.",
+  "description": "DZ Code: an in-progress coding agent (in the spirit of Claude Code) built from scratch in TypeScript on the Anthropic SDK.",
+  "license": "MIT",
   "main": "src/index.ts",
   "scripts": {
     "start": "node --env-file-if-exists=.env -r ts-node/register src/index.ts",
