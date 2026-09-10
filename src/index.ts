@@ -1,5 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { requireApiKey, requireQuestion, parseClearFlags, ClearFlags } from "./cli";
+import {
+  requireApiKey,
+  requireQuestion,
+  parseClearFlags,
+  ClearFlags,
+} from "./cli";
 import { runAgent, buildSystemPrompt } from "./agent";
 import { addToSessionHistory, clearSessionHistory } from "./session";
 import { loadProjectNotes, clearProjectNotes } from "./notes";
@@ -18,7 +23,7 @@ async function main() {
 
   const { answer, messages } = await runAgent(client, question, systemPrompt);
 
-  console.log(answer);
+  console.log("\nDZ-CODE:\n\n" + answer);
   addToSessionHistory(messages);
 }
 
