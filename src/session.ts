@@ -25,3 +25,10 @@ export function addToSessionHistory(newMessages: MessageParam[]): void {
 function saveSessionHistory(messages: MessageParam[]): void {
   fs.writeFileSync(SESSION_FILE, JSON.stringify(messages, null, 2), "utf-8");
 }
+
+/** Deletes the saved session history file, if one exists. Returns whether anything was cleared. */
+export function clearSessionHistory(): boolean {
+  if (!fs.existsSync(SESSION_FILE)) return false;
+  fs.unlinkSync(SESSION_FILE);
+  return true;
+}

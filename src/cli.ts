@@ -12,8 +12,25 @@ export function requireApiKey(): string {
 export function requireQuestion(): string {
   const question = process.argv[2];
   if (!question) {
-    console.error('Usage: npm start -- "your question about the codebase"');
+    console.error(
+      'Usage: npm start -- "your question about the codebase"\n' +
+        "   or: npm start -- --clear-history [--clear-notes]  (clear saved memory)",
+    );
     process.exit(1);
   }
   return question;
+}
+
+export interface ClearFlags {
+  history: boolean;
+  notes: boolean;
+}
+
+/** Reads which --clear-* flags were passed on argv. */
+export function parseClearFlags(): ClearFlags {
+  const args = process.argv.slice(2);
+  return {
+    history: args.includes("--clear-history"),
+    notes: args.includes("--clear-notes"),
+  };
 }
