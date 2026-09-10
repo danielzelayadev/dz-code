@@ -28,7 +28,7 @@ async function main() {
 }
 
 /** Clears whichever persistent memory files were requested via CLI flags. */
-function runClear(flags: ClearFlags): void {
+export function runClear(flags: ClearFlags): void {
   if (flags.history) {
     console.log(
       clearSessionHistory()
@@ -45,7 +45,9 @@ function runClear(flags: ClearFlags): void {
   }
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
