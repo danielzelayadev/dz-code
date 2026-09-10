@@ -1,3 +1,4 @@
+/** Tool: greps a regex pattern across files in a directory tree. */
 import fs from "fs";
 import path from "path";
 import type { Tool } from "@anthropic-ai/sdk/resources/messages";

@@ -1,3 +1,4 @@
+/** Tool: lists the contents of a directory. */
 import fs from "fs";
 import type { Tool } from "@anthropic-ai/sdk/resources/messages";
 

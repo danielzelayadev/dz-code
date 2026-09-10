@@ -1,3 +1,7 @@
+/**
+ * Registry mapping each tool's name to its schema and handler, so agent.ts
+ * can dispatch by name.
+ */
 import type { Tool } from "@anthropic-ai/sdk/resources/messages";
 import { READ_FILE_TOOL, readFile } from "./read-file";
 import { LIST_DIRECTORY_TOOL, listDirectory } from "./list-directory";

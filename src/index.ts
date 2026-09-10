@@ -1,3 +1,7 @@
+/**
+ * Entry point: parses CLI input, runs the agent (or a memory-clear command),
+ * and persists the resulting session.
+ */
 import Anthropic from "@anthropic-ai/sdk";
 import {
   requireApiKey,

@@ -1,3 +1,4 @@
+/** Tool: searches past session transcripts for a query string. */
 import type {
   ImageBlockParam,
   MessageParam,

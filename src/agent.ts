@@ -1,3 +1,7 @@
+/**
+ * The agentic loop: sends the conversation to the model, dispatches any tool
+ * calls it makes, and repeats until it answers in text.
+ */
 import Anthropic from "@anthropic-ai/sdk";
 import type {
   ContentBlock,

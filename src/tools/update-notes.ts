@@ -1,3 +1,4 @@
+/** Tool: rewrites PROJECT_NOTES.md with the agent's revised notes. */
 import fs from "fs";
 import type { Tool } from "@anthropic-ai/sdk/resources/messages";
 import { MAX_NOTES_LENGTH, NOTES_FILE } from "../notes";

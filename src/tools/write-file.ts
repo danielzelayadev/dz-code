@@ -1,3 +1,4 @@
+/** Tool: creates or overwrites a file with new content. */
 import fs from "fs";
 import type { Tool } from "@anthropic-ai/sdk/resources/messages";
 

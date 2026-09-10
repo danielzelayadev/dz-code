@@ -1,3 +1,4 @@
+/** Persistence for PROJECT_NOTES.md, the agent's long-term project memory. */
 import fs from "fs";
 
 export const NOTES_FILE = "PROJECT_NOTES.md";

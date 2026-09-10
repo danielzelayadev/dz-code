@@ -1,3 +1,4 @@
+/** Persistence for .session.json, the append-only log of past conversation transcripts. */
 import fs from "fs";
 import type { MessageParam } from "@anthropic-ai/sdk/resources/messages";
 

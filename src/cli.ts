@@ -1,3 +1,5 @@
+/** Reads and validates input from the outside world: env vars and CLI flags. */
+
 /** Reads the API key from the environment, or exits with a helpful error. */
 export function requireApiKey(): string {
   const apiKey = process.env.ANTHROPIC_API_KEY;

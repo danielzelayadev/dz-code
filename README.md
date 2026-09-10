@@ -63,6 +63,10 @@ plain text. Because the system prompt (notes included) is built once at
 the start of a run, a note written mid-run won't be visible to the model
 until the *next* invocation.
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the full design rationale —
+the agentic loop, the tool-registry pattern, and why notes and session
+history are persisted differently.
+
 ## Testing
 
 This project follows test-driven development — see the **Testing**

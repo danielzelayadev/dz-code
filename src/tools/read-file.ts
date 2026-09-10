@@ -1,3 +1,4 @@
+/** Tool: reads a file's contents. */
 import fs from "fs";
 import type { Tool } from "@anthropic-ai/sdk/resources/messages";
 
