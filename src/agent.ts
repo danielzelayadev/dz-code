@@ -66,23 +66,46 @@ function extractText(content: ContentBlock[]): string {
 
 /** Runs a single tool the model asked for and turns the outcome into a tool_result block. */
 function runToolCall(toolCall: ToolUseBlock): ToolResultBlockParam {
-  const entry = TOOLS[toolCall.name];
+  const { name, id } = toolCall;
+  const input = toolCall.input as Record<string, unknown>;
+  logToolCall(name, input);
+
+  const entry = TOOLS[name];
   if (!entry) {
-    return toolError(toolCall.id, `Unknown tool: ${toolCall.name}`);
+    return logAndReturnError(id, name, `Unknown tool: ${name}`);
   }
 
-  const input = toolCall.input as Record<string, unknown>;
   const missing = missingRequiredArgs(entry.tool, input);
   if (missing.length > 0) {
-    return toolError(toolCall.id, `Missing required argument(s): ${missing.join(", ")}`);
+    return logAndReturnError(id, name, `Missing required argument(s): ${missing.join(", ")}`);
   }
 
   try {
-    return toolSuccess(toolCall.id, entry.handler(input));
+    const result = entry.handler(input);
+    logToolSuccess(name);
+    return toolSuccess(id, result);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    return toolError(toolCall.id, `Error running ${toolCall.name}: ${message}`);
+    return logAndReturnError(id, name, `Error running ${name}: ${message}`);
   }
+}
+
+/** Logs a tool's error outcome and turns it into an error tool_result block. */
+function logAndReturnError(toolUseId: string, name: string, message: string): ToolResultBlockParam {
+  logToolError(name, message);
+  return toolError(toolUseId, message);
+}
+
+function logToolCall(name: string, input: Record<string, unknown>): void {
+  console.log(`→ ${name}(${JSON.stringify(input)})`);
+}
+
+function logToolSuccess(name: string): void {
+  console.log(`✓ ${name}`);
+}
+
+function logToolError(name: string, message: string): void {
+  console.error(`✗ ${name}: ${message}`);
 }
 
 function missingRequiredArgs(tool: Tool, input: Record<string, unknown>): string[] {
