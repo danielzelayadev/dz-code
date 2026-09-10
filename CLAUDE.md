@@ -54,3 +54,4 @@ src/
 - Run the CLI to sanity-check behavior end-to-end when changing the agent
   loop or a tool: `npm start -- "your question"` (needs `ANTHROPIC_API_KEY`
   set in the environment).
+- All changes need human approval before commit.
