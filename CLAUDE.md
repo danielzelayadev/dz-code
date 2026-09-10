@@ -48,10 +48,39 @@ src/
 - Boolean-returning helpers read as predicates (`isToolUseBlock`).
 - Prefer one clear name over a shorter ambiguous one.
 
+## Testing
+
+- **Test-first for every new feature.** Before writing implementation code,
+  write tests that describe the behavior you're adding and watch them fail.
+  Only then write the code to make them pass. Don't write production code
+  a test doesn't already require.
+- **Existing code needs coverage too.** The suite for code that predates
+  this rule is being backfilled incrementally — when you touch an untested
+  file for any reason, add tests for the behavior you touched (at minimum)
+  before changing it.
+- **Mock external boundaries, don't hit them for real.** Tests never call
+  the real Anthropic API or touch real repo files:
+  - The Anthropic client: pass a fake object shaped like
+    `{ messages: { create: vi.fn() } }` — `runAgent` already takes the
+    client as a parameter, so a real network call is never needed. See
+    `test/helpers/fake-anthropic-client.ts`.
+  - The filesystem: fs-touching code (`session.ts`, `notes.ts`,
+    `tools/*.ts`) is tested against a throwaway temp directory created and
+    `chdir`'d into for the test, never the repo's own files. See
+    `test/helpers/fs-fixture.ts`.
+- Test files live under `test/`, mirroring `src/` 1:1 — `src/notes.ts` →
+  `test/notes.test.ts`, `src/tools/read-file.ts` →
+  `test/tools/read-file.test.ts`.
+
 ## Workflow
 
-- Type-check before considering a change done: `npx tsc --noEmit`.
+- Type-check before considering a change done: `npx tsc --noEmit` and
+  `npx tsc -p tsconfig.test.json --noEmit`.
+- Run the test suite and make sure it's green: `npm test`. A change is not
+  done until its new or updated tests pass.
 - Run the CLI to sanity-check behavior end-to-end when changing the agent
   loop or a tool: `npm start -- "your question"` (needs `ANTHROPIC_API_KEY`
   set in the environment).
-- All changes need human approval before commit.
+- All changes need human approval before commit — human review happens
+  only once `npx tsc --noEmit`, `npx tsc -p tsconfig.test.json --noEmit`,
+  and `npm test` are all green.
