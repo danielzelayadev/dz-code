@@ -1,0 +1,33 @@
+import type { Tool } from "@anthropic-ai/sdk/resources/messages";
+import { READ_FILE_TOOL, readFile } from "./read-file";
+import { LIST_DIRECTORY_TOOL, listDirectory } from "./list-directory";
+import { SEARCH_FILES_TOOL, searchFiles } from "./search-files";
+import { WRITE_FILE_TOOL, writeFile } from "./write-file";
+
+export interface ToolDefinition {
+  tool: Tool;
+  handler: (input: Record<string, unknown>) => string;
+}
+
+/** Registry of every tool available to the agent, keyed by the name the model calls. */
+export const TOOLS: Record<string, ToolDefinition> = {
+  read_file: {
+    tool: READ_FILE_TOOL,
+    handler: (input) => readFile(input.path as string),
+  },
+  list_directory: {
+    tool: LIST_DIRECTORY_TOOL,
+    handler: (input) => listDirectory((input.path as string) ?? "."),
+  },
+  search_files: {
+    tool: SEARCH_FILES_TOOL,
+    handler: (input) =>
+      searchFiles(input.pattern as string, (input.directory as string) ?? "."),
+  },
+  write_file: {
+    tool: WRITE_FILE_TOOL,
+    handler: (input) => writeFile(input.path as string, input.content as string),
+  },
+};
+
+export const TOOL_LIST: Tool[] = Object.values(TOOLS).map((def) => def.tool);

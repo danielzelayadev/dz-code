@@ -1,0 +1,18 @@
+{
+  "name": "dz-code-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Minimal TypeScript CLI agent using the Anthropic SDK, with a single read_file tool.",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env -r ts-node/register src/index.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}
