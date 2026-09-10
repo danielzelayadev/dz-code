@@ -32,7 +32,7 @@ export const TOOLS: Record<string, ToolDefinition> = {
   },
   update_notes: {
     tool: UPDATE_NOTES_TOOL,
-    handler: (input) => updateNotes(input.note as string),
+    handler: (input) => updateNotes(input.notes as string),
   },
   check_history: {
     tool: CHECK_HISTORY_TOOL,

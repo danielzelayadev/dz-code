@@ -1,6 +1,7 @@
 import fs from "fs";
 
 export const NOTES_FILE = "PROJECT_NOTES.md";
+export const MAX_NOTES_LENGTH = 4000;
 
 /** Loads the project notes file, or null if the agent hasn't written one yet. */
 export function loadProjectNotes(): string | null {

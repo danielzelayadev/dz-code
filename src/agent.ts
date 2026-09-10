@@ -18,9 +18,12 @@ const SYSTEM_PROMPT =
   "Use write_file to create or overwrite a file with new content. Prefer " +
   "read_file, list_directory, or search_files to gather context before " +
   "answering; only use write_file when the user has actually asked for a " +
-  "file to be created or changed. Use update_notes to record facts worth " +
-  "remembering long-term about this codebase — architecture, conventions, " +
-  "past mistakes — not for routine narration of what you just did. Past " +
+  "file to be created or changed. Use update_notes to keep PROJECT_NOTES.md " +
+  "current — it replaces the whole file, so pass the full revised document " +
+  "each time: keep what's still true from the notes shown above under " +
+  "'## Project notes', prune what's stale or superseded, and add new " +
+  "durable facts (architecture, conventions, past mistakes). Don't use it " +
+  "for routine narration of what you just did. Past " +
   "conversation history is not automatically included in your context — if " +
   "you suspect something relevant was already discussed or decided in an " +
   "earlier session, use check_history to search for it rather than " +
