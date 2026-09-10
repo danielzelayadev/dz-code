@@ -24,7 +24,26 @@ export function toolUseResponse(
   input: Record<string, unknown>,
   id = `toolu_${name}`,
 ): Message {
-  return buildMessage([{ type: "tool_use", id, name, input }], "tool_use");
+  return parallelToolUseResponse([{ name, input, id }]);
+}
+
+interface ToolCallSpec {
+  name: string;
+  input: Record<string, unknown>;
+  id?: string;
+}
+
+/** Builds an assistant response requesting several tool calls in one turn. */
+export function parallelToolUseResponse(calls: ToolCallSpec[]): Message {
+  const blocks = calls.map(
+    ({ name, input, id = `toolu_${name}` }): ContentBlock => ({
+      type: "tool_use",
+      id,
+      name,
+      input,
+    }),
+  );
+  return buildMessage(blocks, "tool_use");
 }
 
 function buildMessage(content: ContentBlock[], stopReason: Message["stop_reason"]): Message {
