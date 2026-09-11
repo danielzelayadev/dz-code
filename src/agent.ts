@@ -11,7 +11,7 @@ import type {
   ToolUseBlock,
 } from "@anthropic-ai/sdk/resources/messages";
 import { TOOLS, TOOL_LIST } from "./tools";
-import { confirmAction, type ConfirmFn } from "./confirm";
+import { buildConfirmationMessage, confirmAction, type ConfirmFn } from "./confirm";
 
 const MODEL = "claude-sonnet-5";
 
@@ -134,7 +134,11 @@ async function runToolCall(toolCall: ToolUseBlock, confirm: ConfirmFn): Promise<
   }
 
   if (entry.confirmation?.isRequired(input)) {
-    const approved = await confirm(entry.confirmation.describe(input));
+    const message = buildConfirmationMessage(
+      entry.confirmation.summarize(input),
+      entry.confirmation.describe(input),
+    );
+    const approved = await confirm(message);
     if (!approved) {
       return logAndReturnRejection(id, name);
     }

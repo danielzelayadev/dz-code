@@ -54,6 +54,6 @@ function countOccurrences(content: string, target: string): number {
 /** Requires confirmation unless git would let the user recover the file's prior contents. */
 export const editFileConfirmation: ToolConfirmation = {
   isRequired: (input) => !isGitRecoverable(input.path as string),
-  describe: (input) =>
-    `Edit ${input.path}:\n\n- ${input.old_string}\n+ ${input.new_string}`,
+  summarize: (input) => `edit ${input.path}`,
+  describe: (input) => `- ${input.old_string}\n+ ${input.new_string}`,
 };

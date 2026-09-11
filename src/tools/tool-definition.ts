@@ -5,7 +5,9 @@ import type { Tool } from "@anthropic-ai/sdk/resources/messages";
 export interface ToolConfirmation {
   /** Whether this particular call needs approval. */
   isRequired: (input: Record<string, unknown>) => boolean;
-  /** The action description printed to the user before the y/N prompt. */
+  /** Short human phrase for what's being approved, e.g. "edit file.txt". */
+  summarize: (input: Record<string, unknown>) => string;
+  /** The technical detail shown under "Details:" — the exact command, or path plus old/new content. */
   describe: (input: Record<string, unknown>) => string;
 }
 

@@ -3,6 +3,13 @@ import * as readline from "readline/promises";
 
 export type ConfirmFn = (message: string) => Promise<boolean>;
 
+const APP_NAME = "DZ Code";
+
+/** Combines a short action summary and its technical details into the message shown before the y/N prompt. */
+export function buildConfirmationMessage(summary: string, details: string): string {
+  return `${APP_NAME} is asking permission to ${summary}. Details:\n\n${details}`;
+}
+
 /** Prints `message` and asks the user to type 'y' to proceed, defaulting to no. */
 export async function confirmAction(
   message: string,

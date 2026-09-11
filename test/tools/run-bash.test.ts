@@ -33,4 +33,8 @@ describe("runBashConfirmation", () => {
   it("describes the command", () => {
     expect(runBashConfirmation.describe({ command: "rm -rf /" })).toContain("rm -rf /");
   });
+
+  it("summarizes the action without the raw command", () => {
+    expect(runBashConfirmation.summarize({ command: "rm -rf /" })).toContain("shell command");
+  });
 });

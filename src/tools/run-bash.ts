@@ -51,5 +51,6 @@ function truncate(output: string): string {
 /** Always requires confirmation — running arbitrary commands is the highest-risk tool. */
 export const runBashConfirmation: ToolConfirmation = {
   isRequired: () => true,
-  describe: (input) => `Run: ${input.command}`,
+  summarize: () => "run a shell command",
+  describe: (input) => `${input.command}`,
 };

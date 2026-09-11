@@ -30,11 +30,16 @@ describe("writeFile", () => {
 describe("writeFileConfirmation", () => {
   useTempCwd();
 
-  it("describes the path and content", () => {
+  it("describes the content", () => {
     const message = writeFileConfirmation.describe({ path: "file.txt", content: "hello" });
 
-    expect(message).toContain("file.txt");
     expect(message).toContain("hello");
+  });
+
+  it("summarizes the action with the path", () => {
+    const summary = writeFileConfirmation.summarize({ path: "file.txt", content: "hello" });
+
+    expect(summary).toContain("file.txt");
   });
 
   it("requires confirmation when the directory isn't a git repo", () => {

@@ -32,16 +32,25 @@ describe("editFile", () => {
 describe("editFileConfirmation", () => {
   useTempCwd();
 
-  it("describes the path and both strings", () => {
+  it("describes both strings", () => {
     const message = editFileConfirmation.describe({
       path: "file.txt",
       old_string: "old",
       new_string: "new",
     });
 
-    expect(message).toContain("file.txt");
     expect(message).toContain("old");
     expect(message).toContain("new");
+  });
+
+  it("summarizes the action with the path", () => {
+    const summary = editFileConfirmation.summarize({
+      path: "file.txt",
+      old_string: "old",
+      new_string: "new",
+    });
+
+    expect(summary).toContain("file.txt");
   });
 
   it("requires confirmation when the directory isn't a git repo", () => {

@@ -63,16 +63,19 @@ call at once: two confirmation prompts printing over each other would be
 unusable.
 
 A `ToolDefinition` ([src/tools/tool-definition.ts](src/tools/tool-definition.ts))
-may carry an optional `confirmation: { isRequired, describe }`. Before
-`agent.ts` invokes a tool's handler, it checks `isRequired(input)`; if
-true, it prints `describe(input)` — the exact command, or the file path
-plus old/new content — and awaits the user's answer via
-[`confirmAction`](src/confirm.ts) (a thin `readline` wrapper, injected
-into `runAgent` as a `confirm` parameter the same way the Anthropic
-client is, so tests supply a fake instead of touching the real TTY). A
-decline returns a normal (non-`is_error`) `tool_result` telling the
-model the action was skipped, so it can propose something else instead
-of treating it as a bug to retry.
+may carry an optional `confirmation: { isRequired, summarize, describe }`.
+Before `agent.ts` invokes a tool's handler, it checks `isRequired(input)`;
+if true, it combines `summarize(input)` (a short human phrase, e.g. "edit
+file.txt") and `describe(input)` (the technical detail — the exact
+command, or old/new content) via
+[`buildConfirmationMessage`](src/confirm.ts) into a message like "DZ Code
+is asking permission to edit file.txt. Details: ...", and awaits the
+user's answer via [`confirmAction`](src/confirm.ts) (a thin `readline`
+wrapper, injected into `runAgent` as a `confirm` parameter the same way
+the Anthropic client is, so tests supply a fake instead of touching the
+real TTY). A decline returns a normal (non-`is_error`) `tool_result`
+telling the model the action was skipped, so it can propose something
+else instead of treating it as a bug to retry.
 
 `run_bash`'s `isRequired` is always `true`. `write_file`/`edit_file`'s
 `isRequired` is `!isGitRecoverable(path)` ([src/git.ts](src/git.ts)),

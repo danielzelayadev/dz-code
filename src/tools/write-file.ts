@@ -36,5 +36,6 @@ export function writeFile(path: string, content: string): string {
 /** Requires confirmation unless git would let the user recover the file's prior contents. */
 export const writeFileConfirmation: ToolConfirmation = {
   isRequired: (input) => !isGitRecoverable(input.path as string),
-  describe: (input) => `Write to ${input.path}:\n\n${input.content}`,
+  summarize: (input) => `write to ${input.path}`,
+  describe: (input) => `${input.content}`,
 };

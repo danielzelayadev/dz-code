@@ -180,6 +180,7 @@ describe("runAgent", () => {
 
     const result = await runAgent(client, "run echo hi", "system prompt", confirm);
 
+    expect(confirm).toHaveBeenCalledWith(expect.stringContaining("DZ Code is asking permission"));
     expect(confirm).toHaveBeenCalledWith(expect.stringContaining("echo hi"));
     const toolResult = result.messages[2].content as Array<{ content: string }>;
     expect(toolResult[0].content).toContain("hi");

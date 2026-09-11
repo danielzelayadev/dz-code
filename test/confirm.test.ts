@@ -1,6 +1,6 @@
 import { Readable, Writable } from "stream";
 import { describe, expect, it } from "vitest";
-import { confirmAction } from "../src/confirm";
+import { buildConfirmationMessage, confirmAction } from "../src/confirm";
 
 function fakeInput(answer: string): Readable {
   return Readable.from([answer]);
@@ -49,5 +49,15 @@ describe("confirmAction", () => {
     const result = await confirmAction("Do the thing?", fakeInput("\n"), stream);
 
     expect(result).toBe(false);
+  });
+});
+
+describe("buildConfirmationMessage", () => {
+  it("frames the summary as what's being asked and includes the details", () => {
+    const message = buildConfirmationMessage("edit file.txt", "- old\n+ new");
+
+    expect(message).toContain("DZ Code is asking permission to edit file.txt.");
+    expect(message).toContain("Details:");
+    expect(message).toContain("- old\n+ new");
   });
 });
