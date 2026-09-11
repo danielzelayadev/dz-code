@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/review-uncommitted-changes.sh",
+            "timeout": 30,
+            "statusMessage": "Checking for uncommitted changes to review..."
+          }
+        ]
+      }
+    ]
+  }
+}

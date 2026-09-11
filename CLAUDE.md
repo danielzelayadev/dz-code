@@ -95,3 +95,8 @@ src/
 - All changes need human approval before commit — human review happens
   only once `npx tsc --noEmit`, `npx tsc -p tsconfig.test.json --noEmit`,
   and `npm test` are all green.
+- A Stop hook ([.claude/hooks/review-uncommitted-changes.sh](.claude/hooks/review-uncommitted-changes.sh))
+  runs the [code-reviewer](.claude/agents/code-reviewer.md) subagent on any
+  uncommitted diff before a turn is allowed to end, and blocks the turn
+  again until issues it finds are fixed. This is an automated first pass,
+  not a substitute for the human review above.

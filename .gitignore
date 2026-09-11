@@ -3,3 +3,4 @@ dist/
 .env
 .session.json
 PROJECT_NOTES.md
+.claude/.last-reviewed-diff
