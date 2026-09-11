@@ -20,6 +20,10 @@ is very much still growing.
   can recover (gitignored, or outside a git repo). When a prompt fires,
   the CLI prints the exact action and waits for you to type `y` in the
   terminal before proceeding.
+- **Colored output** — tool calls, successes, errors, declines, and the
+  final answer are colorized when running in an interactive terminal.
+  Output falls back to plain text automatically when piped/redirected, or
+  when `NO_COLOR` is set.
 - **Long-term project notes** — the agent maintains `PROJECT_NOTES.md`
   (capped at 4000 characters) via the `update_notes` tool, which rewrites
   the whole file each time — pruning stale entries and folding in new

@@ -1,6 +1,7 @@
 /** Persistence for .session.json, the append-only log of past conversation transcripts. */
 import fs from "fs";
 import type { MessageParam } from "@anthropic-ai/sdk/resources/messages";
+import { yellow } from "./colors";
 
 const SESSION_FILE = ".session.json";
 
@@ -11,7 +12,7 @@ export function loadSessionHistory(): MessageParam[] {
   try {
     return JSON.parse(fs.readFileSync(SESSION_FILE, "utf-8"));
   } catch (err) {
-    console.error(`Warning: couldn't read ${SESSION_FILE}, starting a fresh session (${err})`);
+    console.error(yellow(`Warning: couldn't read ${SESSION_FILE}, starting a fresh session (${err})`));
     return [];
   }
 }

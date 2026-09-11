@@ -1,5 +1,6 @@
 /** Asks the terminal user to approve an action before it runs. */
 import * as readline from "readline/promises";
+import { yellow } from "./colors";
 
 export type ConfirmFn = (message: string) => Promise<boolean>;
 
@@ -18,7 +19,7 @@ export async function confirmAction(
 ): Promise<boolean> {
   const rl = readline.createInterface({ input, output });
   try {
-    const answer = await rl.question(`${message}\n\nType 'y' to proceed: `);
+    const answer = await rl.question(yellow(`${message}\n\nType 'y' to proceed: `));
     return answer.trim().toLowerCase() === "y";
   } finally {
     rl.close();

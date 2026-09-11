@@ -12,6 +12,7 @@ import {
 import { runAgent, buildSystemPrompt } from "./agent";
 import { addToSessionHistory, clearSessionHistory } from "./session";
 import { loadProjectNotes, clearProjectNotes } from "./notes";
+import { bold, cyan, gray, green } from "./colors";
 
 async function main() {
   const clearFlags = parseClearFlags();
@@ -27,7 +28,7 @@ async function main() {
 
   const { answer, messages } = await runAgent(client, question, systemPrompt);
 
-  console.log("\nDZ-CODE:\n\n" + answer);
+  console.log("\n" + bold(cyan("DZ-CODE:")) + "\n\n" + answer);
   addToSessionHistory(messages);
 }
 
@@ -36,15 +37,15 @@ export function runClear(flags: ClearFlags): void {
   if (flags.history) {
     console.log(
       clearSessionHistory()
-        ? "Cleared session history (.session.json)."
-        : "No session history to clear.",
+        ? green("Cleared session history (.session.json).")
+        : gray("No session history to clear."),
     );
   }
   if (flags.notes) {
     console.log(
       clearProjectNotes()
-        ? "Cleared project notes (PROJECT_NOTES.md)."
-        : "No project notes to clear.",
+        ? green("Cleared project notes (PROJECT_NOTES.md).")
+        : gray("No project notes to clear."),
     );
   }
 }

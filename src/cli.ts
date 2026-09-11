@@ -1,10 +1,11 @@
 /** Reads and validates input from the outside world: env vars and CLI flags. */
+import { red } from "./colors";
 
 /** Reads the API key from the environment, or exits with a helpful error. */
 export function requireApiKey(): string {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    console.error("Error: ANTHROPIC_API_KEY environment variable is not set.");
+    console.error(red("Error: ANTHROPIC_API_KEY environment variable is not set."));
     process.exit(1);
   }
   return apiKey;
@@ -15,8 +16,10 @@ export function requireQuestion(): string {
   const question = process.argv[2];
   if (!question) {
     console.error(
-      'Usage: npm start -- "your question about the codebase"\n' +
-        "   or: npm start -- --clear-history [--clear-notes]  (clear saved memory)",
+      red(
+        'Usage: npm start -- "your question about the codebase"\n' +
+          "   or: npm start -- --clear-history [--clear-notes]  (clear saved memory)",
+      ),
     );
     process.exit(1);
   }

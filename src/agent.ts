@@ -12,6 +12,7 @@ import type {
 } from "@anthropic-ai/sdk/resources/messages";
 import { TOOLS, TOOL_LIST } from "./tools";
 import { buildConfirmationMessage, confirmAction, type ConfirmFn } from "./confirm";
+import { gray, green, red, yellow } from "./colors";
 
 const MODEL = "claude-sonnet-5";
 
@@ -167,19 +168,19 @@ function logAndReturnRejection(toolUseId: string, name: string): ToolResultBlock
 }
 
 function logToolCall(name: string, input: Record<string, unknown>): void {
-  console.log(`→ ${name}(${JSON.stringify(input)})`);
+  console.log(gray(`→ ${name}(${JSON.stringify(input)})`));
 }
 
 function logToolSuccess(name: string): void {
-  console.log(`✓ ${name}`);
+  console.log(green(`✓ ${name}`));
 }
 
 function logToolError(name: string, message: string): void {
-  console.error(`✗ ${name}: ${message}`);
+  console.error(red(`✗ ${name}: ${message}`));
 }
 
 function logToolRejection(name: string): void {
-  console.log(`⊘ ${name} (declined by user)`);
+  console.log(yellow(`⊘ ${name} (declined by user)`));
 }
 
 function missingRequiredArgs(tool: Tool, input: Record<string, unknown>): string[] {
